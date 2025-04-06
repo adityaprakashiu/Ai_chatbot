@@ -15,17 +15,52 @@ st.set_page_config(
 # Custom CSS
 st.markdown("""
 <style>
-    .expense-progress {
-        padding: 10px;
-        background: #e3f2fd;
-        border-radius: 8px;
-        margin: 10px 0;
+    :root {
+        --primary: #2dba68;
+        --background: #0f1114;
     }
-    .advice-card {
-        padding: 15px;
-        background: #f5f5f5;
-        border-radius: 10px;
-        margin: 10px 0;
+    
+    body {
+        background-image: linear-gradient(rgba(11, 13, 16, 0.9), rgba(11, 13, 16, 0.9)),
+                          url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1920');
+        background-size: cover;
+        background-attachment: fixed;
+        color: #ffffff !important;
+    }
+    
+    .stChatMessage {
+        background: rgba(25, 28, 32, 0.9) !important;
+        border: 1px solid #2dba6840 !important;
+        border-radius: 12px;
+        backdrop-filter: blur(4px);
+    }
+    
+    .expense-progress {
+        background: rgba(25, 28, 32, 0.9) !important;
+        border: 1px solid #2dba6840;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        color: var(--primary) !important;
+        font-weight: bold;
+    }
+    
+    .stTextInput>div>div>input {
+        color: #ffffff !important;
+        background: rgba(25, 28, 32, 0.9) !important;
+    }
+    
+    .stButton>button {
+        background: var(--primary) !important;
+        color: #000000 !important;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: transform 0.2s;
+    }
+    
+    .stButton>button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(45, 186, 104, 0.3);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -156,11 +191,9 @@ def analyze_expenses():
             # Stream response
             for line in analysis.split('\n'):
                 full_response += line + "\n"
-                response_placeholder.markdown(f"```{full_response}```")
+                response_placeholder.markdown(full_response)
                 time.sleep(0.05)
                 
-            response_placeholder.markdown(full_response)
-            
         except Exception as e:
             response_placeholder.error(f"Analysis error: {str(e)}")
 
@@ -198,8 +231,18 @@ if st.session_state.collecting_expenses:
     
     st.markdown(f"""
     <div class="expense-progress">
-        📊 Collection Progress: {st.session_state.current_category_index}/{len(EXPENSE_CATEGORIES)} categories
-        <br>
-        Current Category: {current_category}
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>📊 Collection Progress</span>
+            <span>{st.session_state.current_category_index}/{len(EXPENSE_CATEGORIES)}</span>
+        </div>
+        <div style="height: 6px; background: #2dba6820; border-radius: 3px;">
+            <div style="width: {progress*100}%; height: 100%; 
+                     background: var(--primary); border-radius: 3px; 
+                     transition: width 0.3s ease;">
+            </div>
+        </div>
+        <div style="margin-top: 12px; color: #ffffffb0;">
+            Current Category: {current_category}
+        </div>
     </div>
     """, unsafe_allow_html=True)
