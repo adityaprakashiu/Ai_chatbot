@@ -99,16 +99,53 @@ EXPENSE_CATEGORIES = [
     "🎁 Miscellaneous"
 ]
 
-# Configure sidebar
+# Configure sidebar (Mental Health Journal style)
 with st.sidebar:
     st.title("⚙️ Settings")
-    api_key = st.text_input("OpenRouter API Key", type="password")
-    st.markdown("[Get API Key](https://openrouter.ai/keys)")
+    with st.container():
+        api_key = st.text_input("OpenRouter API Key", type="password", help="Required for AI functionality")
+        st.markdown("[Get API Key](https://openrouter.ai/keys)")
+        
+        with st.expander("📘 Quick Start Guide"):
+            st.markdown("""
+            1. Enter API key above
+            2. Click 'Start' in chat
+            3. Input expense amounts
+            4. Get financial insights
+            """)
+        
+        model_name = st.selectbox(
+            "🤖 Analysis Model",
+            ( "google/palm-2-chat-bison"),
+            index=0
+        )
+        
+        with st.expander("⚡ Advanced Settings"):
+            analysis_depth = st.slider("🔍 Analysis Depth", 0.0, 1.0, 0.7)
+            max_retries = st.number_input("🔄 Max Retries", 1, 5, 2)
+        
+        st.markdown("### 🚀 Quick Actions")
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("🧹 Clear Chat", use_container_width=True):
+                st.session_state.messages = [{
+                    "role": "assistant",
+                    "content": "Chat cleared! Ready to analyze expenses!"
+                }]
+        with col2:
+            if st.button("📋 Example Prompt", use_container_width=True):
+                st.session_state.messages.append({
+                    "role": "assistant",
+                    "content": "Try typing 'start' to begin expense analysis!"
+                })
 
 # Main interface
 st.title("💼 Monthly Expense Analyzer")
 st.caption("Get personalized financial advice based on your spending patterns")
 
+# Rest of the code remains unchanged...
+# [Keep all existing chat handling, expense collection, and analysis functions below]
+# [The main interface and functionality stay identical to previous version]
 # Chat history
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
