@@ -4,7 +4,6 @@ import json
 import time
 import logging
 
-# Set page config
 st.set_page_config(
     page_title="💼 AI Finance Coach",
     page_icon="📊",
@@ -12,7 +11,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS
 st.markdown("""
 <style>
     :root {
@@ -65,10 +63,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 
-# Initialize session state
 if "messages" not in st.session_state:
     st.session_state.messages = [{
         "role": "assistant",
@@ -84,7 +80,6 @@ if "collecting_expenses" not in st.session_state:
 if "current_category_index" not in st.session_state:
     st.session_state.current_category_index = 0
 
-# Expense categories
 EXPENSE_CATEGORIES = [
     "🏠 Housing (rent/mortgage)",
     "🛒 Groceries",
@@ -99,7 +94,6 @@ EXPENSE_CATEGORIES = [
     "🎁 Miscellaneous"
 ]
 
-# Configure sidebar (Mental Health Journal style)
 with st.sidebar:
     st.title("⚙️ Settings")
     with st.container():
@@ -116,7 +110,7 @@ with st.sidebar:
         
         model_name = st.selectbox(
             "🤖 Analysis Model",
-            ( "google/palm-2-chat-bison"),
+            ("google/palm-2-chat-bison",),
             index=0
         )
         
@@ -139,31 +133,22 @@ with st.sidebar:
                     "content": "Try typing 'start' to begin expense analysis!"
                 })
 
-# Main interface
 st.title("💼 Monthly Expense Analyzer")
 st.caption("Get personalized financial advice based on your spending patterns")
 
-# Rest of the code remains unchanged...
-# [Keep all existing chat handling, expense collection, and analysis functions below]
-# [The main interface and functionality stay identical to previous version]
-# Chat history
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Handle expense collection
 def handle_expense_collection(prompt: str):
     current_category = EXPENSE_CATEGORIES[st.session_state.current_category_index]
     
-    # Validate numeric input
     try:
         amount = float(prompt.replace("$", "").replace(",", ""))
         st.session_state.expenses[current_category] = amount
         
-        # Move to next category
         st.session_state.current_category_index += 1
         
-        # Check if all categories collected
         if st.session_state.current_category_index >= len(EXPENSE_CATEGORIES):
             st.session_state.collecting_expenses = False
             analyze_expenses()
@@ -180,14 +165,12 @@ def handle_expense_collection(prompt: str):
             "content": f"⚠️ Please enter a valid number for {current_category}"
         })
 
-# Analyze collected expenses
 def analyze_expenses():
     with st.chat_message("assistant"):
         response_placeholder = st.empty()
         full_response = ""
         
         try:
-            # Format expenses for AI
             expenses_str = "\n".join(
                 [f"{category}: ${amount}" 
                  for category, amount in st.session_state.expenses.items()]
@@ -222,10 +205,8 @@ def analyze_expenses():
             response.raise_for_status()
             analysis = response.json()['choices'][0]['message']['content']
             
-            # Format analysis
             analysis = analysis.replace("**", "").replace("*", "•")
             
-            # Stream response
             for line in analysis.split('\n'):
                 full_response += line + "\n"
                 response_placeholder.markdown(full_response)
@@ -234,7 +215,6 @@ def analyze_expenses():
         except Exception as e:
             response_placeholder.error(f"Analysis error: {str(e)}")
 
-# Chat input
 if prompt := st.chat_input("Type 'start' to begin expense analysis..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     
@@ -261,7 +241,6 @@ if prompt := st.chat_input("Type 'start' to begin expense analysis..."):
         with st.chat_message("assistant"):
             st.info("Type 'start' to begin expense analysis")
 
-# Show progress if collecting expenses
 if st.session_state.collecting_expenses:
     progress = st.session_state.current_category_index / len(EXPENSE_CATEGORIES)
     current_category = EXPENSE_CATEGORIES[st.session_state.current_category_index]
